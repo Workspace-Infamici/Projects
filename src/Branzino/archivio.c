@@ -1,15 +1,16 @@
 #include "archivio.h"
 #include "../utils/archivio.h"
-#include "../utils/general.h"
 
 #include <stdio.h>
 
-static const char *ARCHIVE_PATH = "src/commons/Archivio.dat";
-static const char *ARCHIVE_TMP_PATH = "src/commons/Archivio_tmp.dat";
+static const char *ARCHIVE_PATH = "commons/Archivio.dat";
+static const char *ARCHIVE_TMP_PATH = "commons/Archivio_tmp.dat";
 
 static int record_exists(FILE *fp, int matricola) {
     Record r;
-    rewind(fp);
+
+    fseek(fp, 0, SEEK_SET);
+    clearerr(fp);
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
         if (r.matricola == matricola) {
             return 1;
@@ -18,104 +19,91 @@ static int record_exists(FILE *fp, int matricola) {
     return 0;
 }
 
-void archivio_add(void) {
-    Record r;
+int archivio_add(const Record *r) {
     FILE *fp = fopen(ARCHIVE_PATH, "ab+");
     if (!fp) {
-        printf("Errore apertura archivio: %s\n", ARCHIVE_PATH);
-        return;
+        return -1;
     }
-
-    read_int("Matricola: ", &r.matricola);
-    if (record_exists(fp, r.matricola)) {
-        printf("Matricola gia' presente.\n");
+    if (!r) {
         fclose(fp);
-        return;
+        return -1;
     }
-    read_string("Nome: ", r.nome, sizeof(r.nome));
-    read_string("Cognome: ", r.cognome, sizeof(r.cognome));
-    read_float("Stipendio: ", &r.stipendio);
-    read_string("Classe: ", r.classe, sizeof(r.classe));
-
-    if (fwrite(&r, sizeof(Record), 1, fp) != 1) {
-        printf("Errore scrittura.\n");
-    } else {
-        printf("Record aggiunto.\n");
+    if (record_exists(fp, r->matricola)) {
+        fclose(fp);
+        return 0;
+    }
+    if (fwrite(r, sizeof(Record), 1, fp) != 1) {
+        fclose(fp);
+        return -1;
     }
     fclose(fp);
+    return 1;
 }
 
-void archivio_read_all(void) {
+int archivio_read_all() {
     Record r;
+    int count = 0;
     FILE *fp = fopen(ARCHIVE_PATH, "rb");
     if (!fp) {
-        printf("Archivio vuoto o inesistente.\n");
-        return;
+        return -1;
     }
 
     printf("---- Archivio ----\n");
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
         print_record(&r);
+        count++;
     }
     fclose(fp);
+    return count;
 }
 
-void archivio_update(void) {
-    int matricola;
+int archivio_update(int matricola, const Record *nuovo) {
     Record r;
     FILE *fp = fopen(ARCHIVE_PATH, "r+b");
     if (!fp) {
-        printf("Archivio vuoto o inesistente.\n");
-        return;
+        return -1;
     }
 
-    read_int("Matricola da modificare: ", &matricola);
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
         if (r.matricola == matricola) {
-            printf("Record trovato. Inserisci i nuovi valori.\n");
-            read_string("Nome: ", r.nome, sizeof(r.nome));
-            read_string("Cognome: ", r.cognome, sizeof(r.cognome));
-            read_float("Stipendio: ", &r.stipendio);
-            read_string("Classe: ", r.classe, sizeof(r.classe));
+            if (!nuovo) {
+                fclose(fp);
+                return -1;
+            }
+            r = *nuovo;
+            r.matricola = matricola;
 
             if (fseek(fp, -(long)sizeof(Record), SEEK_CUR) != 0) {
-                printf("Errore posizionamento file.\n");
                 fclose(fp);
-                return;
+                return -1;
             }
             if (fwrite(&r, sizeof(Record), 1, fp) != 1) {
-                printf("Errore scrittura.\n");
-            } else {
-                printf("Record modificato.\n");
+                fclose(fp);
+                return -1;
             }
             fclose(fp);
-            return;
+            return 1;
         }
     }
 
-    printf("Matricola non trovata.\n");
     fclose(fp);
+    return 0;
 }
 
-void archivio_delete_physical(void) {
-    int matricola;
+int archivio_delete_physical(int matricola) {
     int found = 0;
     Record r;
     FILE *fp = fopen(ARCHIVE_PATH, "rb");
     FILE *tmp = NULL;
 
     if (!fp) {
-        printf("Archivio vuoto o inesistente.\n");
-        return;
+        return -1;
     }
-
-    read_int("Matricola da cancellare (fisica): ", &matricola);
 
     tmp = fopen(ARCHIVE_TMP_PATH, "wb");
     if (!tmp) {
-        printf("Errore creazione file temporaneo.\n");
         fclose(fp);
-        return;
+        return -1;
     }
 
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
@@ -131,15 +119,14 @@ void archivio_delete_physical(void) {
 
     if (!found) {
         remove(ARCHIVE_TMP_PATH);
-        printf("Matricola non trovata.\n");
-        return;
+        return 0;
     }
 
     remove(ARCHIVE_PATH);
+    //rename rinomina il tmp path in quello che nel programma viene usato. Con lo 0 va tutto bien, mentre con un valore diverso, è un casino
     if (rename(ARCHIVE_TMP_PATH, ARCHIVE_PATH) != 0) {
-        printf("Errore nel rinominare il file temporaneo.\n");
-        return;
+        return -1;
     }
 
-    printf("Record cancellato fisicamente.\n");
+    return 1;
 }

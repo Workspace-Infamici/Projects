@@ -13,9 +13,9 @@ typedef struct {
     char classe[CLASS_LEN];
 } Record;
 
-void archivio_add(void);
-void archivio_read_all(void);
-void archivio_update(void);
-void archivio_delete_physical(void);
+int archivio_add(const Record *r);
+int archivio_read_all();
+int archivio_update(int matricola, const Record *nuovo);
+int archivio_delete_physical(int matricola);
 
 #endif
