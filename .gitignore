@@ -1,22 +1,23 @@
 # --- IDE specifici ---
-.idea/                  # Cartella di CLion
-.vscode/                # Cartella di VS Code
-*.swp                   # File temporanei di Vim (non si sa mai)
+.idea/
+.vscode/
+*.swp
 
 # --- Build e Compilazione ---
-build/                  # Cartella dove CLion solitamente compila
-cmake-build-debug/      # Cartella di build predefinita di CLion
-cmake-build-release/    
-bin/                    # Eventuale cartella dei binari
+build/
+cmake-build-debug/
+cmake-build-release/
+bin/
 out/
+CMakeLists.txt
 
 # --- File oggetto e eseguibili ---
-*.o                     # File oggetto (compilazione intermedia)
-*.a                     # Librerie statiche
-*.so                    # Librerie dinamiche
-*.exe                   # Eseguibili Windows
-*.out                   # Eseguibili Linux/macOS
+*.o
+*.a
+*.so
+*.exe
+*.out
 
 # --- Altro ---
-.DS_Store               # File spazzatura di macOS
-*.log                   # File di log generati dal programma
+.DS_Store
+*.log
