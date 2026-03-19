@@ -62,7 +62,7 @@ void sessione_admin() {
             }
             // Visualizza archivio
             case 2:
-                result = archivio_read_all();
+                result = archivio_read_all(1);
                 if (result < 0) {
                     printf("Archivio vuoto o inesistente.\n");
                 } else if (result == 0) {
@@ -72,7 +72,7 @@ void sessione_admin() {
                 break;
             // Modifica un record
             case 3: {
-                result = archivio_read_all();
+                result = archivio_read_all(1);
                 if (result < 0) {
                     printf("Archivio vuoto o inesistente.\n");
                     pausa_console();
@@ -122,7 +122,7 @@ void sessione_admin() {
             }
             // Cancellazione logica
             case 5: {
-                result = archivio_read_all();
+                result = archivio_read_all(1);
                 if (result < 0) {
                     printf("Archivio vuoto o inesistente.\n");
                     pausa_console();
@@ -148,7 +148,7 @@ void sessione_admin() {
             }
             // Ripristina record
             case 6: {
-                result = archivio_read_all();
+                result = archivio_read_all(1);
                 if (result < 0) {
                     printf("Archivio vuoto o inesistente.\n");
                     pausa_console();
@@ -218,7 +218,7 @@ void sessione_user() {
             }
             // Visualizza archivio
             case 2:
-                result = archivio_read_all();
+                result = archivio_read_all(0);
                 if (result < 0) {
                     printf("Archivio vuoto o inesistente.\n");
                 } else if (result == 0) {
