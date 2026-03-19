@@ -37,7 +37,6 @@ int main() {
             case 3:
                 printf("Hai scelto di uscire dal programma.\n");
                 in_esecuzione = 0; // imposta il flag a 0 per uscire dal loop
-                pausa_console();
                 break;
             default:
                 printf("Scelta non valida.\n");
