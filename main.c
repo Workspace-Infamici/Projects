@@ -17,19 +17,6 @@ int main() {
         read_int("Scelta: ", &scelta);
         
         switch (scelta) {
-#include <string.h> // per il confronto delle password
-
-int main() {
-    int scelta = 0;
-    int in_esecuzione = 1; // flag di controllo del loop
-
-    // il loop continua finché in_esecuzione è vero (!= 0)
-    do {
-        pulisci_schermo();
-        menu_principale();
-        read_int("Scelta: ", &scelta);
-        
-        switch (scelta) {
             case 1:
                 printf("Benvenuto Utente!\n");
                 sessione_user();
